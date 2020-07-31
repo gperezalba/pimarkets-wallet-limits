@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="/icon.png"/>
+    <title>PiMarkets Wallets</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+    <script src="app.js"></script>
+  </head>
+  <body>
+	<h1>PiMarkets Wallets</h1>
+  <h2>Información de usuario</h2>  
+    <div id="info"></div>    
+    <br>
+  <h2>Límites actuales del Wallet</h2>  
+    <h4>Destinos autorizados</h4>  
+      <div id="limitTo"></div>    
+      <br>
+    <h4>Límite de gasto diario acumulado</h4>  
+      <div id="limitDay"></div>    
+      <br>
+    <h4>Límite de monto máximo por transacción</h4>  
+      <div id="limitValue"></div>    
+      <br>
+	<h2>Modificar límites del Wallet</h2>
+    <h4>Destinos autorizados</h4>  
+      <input type="text" placeholder="Wallet destinatario* (0x...)" id="newLimitToDestination">
+      <button onclick="App.limitToTrue();">Autorizar</button>
+      <button onclick="App.limitToFalse();">Desautorizar</button> 
+      <br>
+      <br>
+      <button onclick="App.unlimitTo();">Desactivar límite de destinatarios</button> 
+      <br>
+    <h4>Límite de gasto diario acumulado</h4>  
+      <div id="limitDay"></div>   
+      <select name="newLimitDayToken" id="newLimitDayToken">
+        <option value="0x0000000000000000000000000000000000000000">PI</option>
+        <option value="0xE3f8af7dc825Cc072BF50F1eF12FBc8a8133709b">EURs</option>
+        <option value="0xD3EF3182D53adD05aE74Ef74D19A0c29bEef99Ab">USDs</option>
+        <option value="0x7777079Bc93eCe8a66424aA6bbED0546EC20D06E">VESs</option>
+        <option value="0xbE7A8D8C2A26A847BBDE18a401066f196bf5657D">COPs</option>
+        <option value="0xd9a7F80cD3552E30b62168164bd04c3b8e5DFCc0">CLPs</option>
+        <option value="0x6E0c484E9eFccF8d29ef229Cc5b47B8B79ed8F97">PENs</option>
+        <option value="0x6E5040F4BA7A6Ec228A5247fe690d5df73539B83">ARSs</option>
+      </select>
+      <input type="text" placeholder="Límite* (Ej: 150.50)" id="newLimitDayLimit"> 
+      <button onclick="App.limitDaily();">Establecer límite</button>
+      <br>
+      <br>
+      <select name="removeLimitDayToken" id="removeLimitDayToken">
+        <option value="0x0000000000000000000000000000000000000000">PI</option>
+        <option value="0xE3f8af7dc825Cc072BF50F1eF12FBc8a8133709b">EURs</option>
+        <option value="0xD3EF3182D53adD05aE74Ef74D19A0c29bEef99Ab">USDs</option>
+        <option value="0x7777079Bc93eCe8a66424aA6bbED0546EC20D06E">VESs</option>
+        <option value="0xbE7A8D8C2A26A847BBDE18a401066f196bf5657D">COPs</option>
+        <option value="0xd9a7F80cD3552E30b62168164bd04c3b8e5DFCc0">CLPs</option>
+        <option value="0x6E0c484E9eFccF8d29ef229Cc5b47B8B79ed8F97">PENs</option>
+        <option value="0x6E5040F4BA7A6Ec228A5247fe690d5df73539B83">ARSs</option>
+      </select>
+      <button onclick="App.unlimitDaily();">Eliminar límite</button> 
+      <br>
+    <h4>Límite de monto máximo por transacción</h4>  
+      <div id="limitValue"></div>      
+      <select name="newLimitValueToken" id="newLimitValueToken">
+        <option value="0x0000000000000000000000000000000000000000">PI</option>
+        <option value="0xE3f8af7dc825Cc072BF50F1eF12FBc8a8133709b">EURs</option>
+        <option value="0xD3EF3182D53adD05aE74Ef74D19A0c29bEef99Ab">USDs</option>
+        <option value="0x7777079Bc93eCe8a66424aA6bbED0546EC20D06E">VESs</option>
+        <option value="0xbE7A8D8C2A26A847BBDE18a401066f196bf5657D">COPs</option>
+        <option value="0xd9a7F80cD3552E30b62168164bd04c3b8e5DFCc0">CLPs</option>
+        <option value="0x6E0c484E9eFccF8d29ef229Cc5b47B8B79ed8F97">PENs</option>
+        <option value="0x6E5040F4BA7A6Ec228A5247fe690d5df73539B83">ARSs</option>
+      </select>
+      <input type="text" placeholder="Límite* (Ej: 150.50)" id="newLimitValueLimit"> 
+      <button onclick="App.limitValue();">Establecer límite</button>
+      <br>
+      <br>
+      <select name="removeLimitValueToken" id="removeLimitValueToken">
+        <option value="0x0000000000000000000000000000000000000000">PI</option>
+        <option value="0xE3f8af7dc825Cc072BF50F1eF12FBc8a8133709b">EURs</option>
+        <option value="0xD3EF3182D53adD05aE74Ef74D19A0c29bEef99Ab">USDs</option>
+        <option value="0x7777079Bc93eCe8a66424aA6bbED0546EC20D06E">VESs</option>
+        <option value="0xbE7A8D8C2A26A847BBDE18a401066f196bf5657D">COPs</option>
+        <option value="0xd9a7F80cD3552E30b62168164bd04c3b8e5DFCc0">CLPs</option>
+        <option value="0x6E0c484E9eFccF8d29ef229Cc5b47B8B79ed8F97">PENs</option>
+        <option value="0x6E5040F4BA7A6Ec228A5247fe690d5df73539B83">ARSs</option>
+      </select>
+      <button onclick="App.unlimitValue();">Eliminar límite</button> 
+      <br>
+	  <br>
+  </body>
+</html>
