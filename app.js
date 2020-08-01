@@ -24,7 +24,22 @@ const App = {
 		this.initSmartID();
 	},
 
+	checkNetwork: async function() {
+		let netId = await this.web3.eth.net.getId();
+
+		if (netId == 31416) {
+			console.log("Está conectado a PiBlockchain Mainnet");
+			return true;
+		} else {
+			console.log("Está conectado a otra red");
+			alert("Debe conectar Metamask a PiBlockchain Mainnet y recargar la página");
+			return false;
+		}
+	},
+
 	updateInfo: async function() {
+		await this.checkNetwork();
+
 		let identityObj = await this.querySubgraph();
 		if (identityObj != null) {
 			if (identityObj.length > 0) {
@@ -107,6 +122,7 @@ const App = {
 				}
 			} else {
 				console.log("Este wallet no es recovery de ninguna SmartID")
+				alert("Este wallet no es recovery de ninguna SmartID");
 			}
 		}
 	},
@@ -124,7 +140,21 @@ const App = {
 					console.log("Este wallet es recovery de varias SmartID")
 				}
 			} else {
+				document.getElementById("info").innerHTML = "Este wallet no es recovery de ninguna SmartID"
 				console.log("Este wallet no es recovery de ninguna SmartID")
+				alert("Este wallet no es recovery de ninguna SmartID");
+				this.buildQueryOwner();
+				let identityObj = await this.querySubgraph();
+				if (identityObj != null) {
+					if (identityObj.length > 0) {
+						if (identityObj.length == 1) {
+							//INFO GENERAL
+							document.getElementById("info").innerHTML = "Estás conectado al wallet 'owner' de: " + 
+							identityObj[0].wallet.name.id + 
+							" <br> DEBES CREAR UNA NUEVA CUENTA EN METAMASK (CUENTA 2) Y CONECTARTE A ELLA.";
+						}
+					}
+				}
 			}
 		}
 	},
@@ -141,8 +171,11 @@ const App = {
 		let _destination = document.getElementById("newLimitToDestination").value; 
 		let _validAddress = this.web3.utils.isAddress(_destination);
 		if (_validAddress) {
-			await this.wallet.methods.limitTo(_destination, _isAllowed).send({from: this.account, gas: 210000});
-			this.updateInfo();
+			let isPiChain = await this.checkNetwork();
+			if (isPiChain) {
+				await this.wallet.methods.limitTo(_destination, _isAllowed).send({from: this.account, gas: 210000});
+				this.updateInfo();
+			}
 		} else {
 			alert("Wallet no válido");
 		}
@@ -153,8 +186,12 @@ const App = {
 		let _tokenAddress = proposerElement.options[proposerElement.selectedIndex].value;
 		let _limit = document.getElementById("newLimitDayLimit").value; 
 		let _limitWei = parseFloat(_limit.replace(',','.').replace(' ',''));
-		await this.wallet.methods.limitDaily(_tokenAddress, _limitWei).send({from: this.account, gas: 210000});
-		this.updateInfo();
+		_limitWei = _limitWei * 1e18;
+		let isPiChain = await this.checkNetwork();
+		if (isPiChain) {
+			await this.wallet.methods.limitDaily(_tokenAddress, String(_limitWei)).send({from: this.account, gas: 210000});
+			this.updateInfo();
+		}
 	},
 
 	limitValue: async function() {
@@ -162,32 +199,50 @@ const App = {
 		let _tokenAddress = proposerElement.options[proposerElement.selectedIndex].value;
 		let _limit = document.getElementById("newLimitValueLimit").value; 
 		let _limitWei = parseFloat(_limit.replace(',','.').replace(' ',''));
-		await this.wallet.methods.limitValue(_tokenAddress, _limitWei).send({from: this.account, gas: 210000});
-		this.updateInfo();
+		_limitWei = _limitWei * 1e18;
+		let isPiChain = await this.checkNetwork();
+		if (isPiChain) {
+			await this.wallet.methods.limitValue(_tokenAddress, String(_limitWei)).send({from: this.account, gas: 210000});
+			this.updateInfo();
+		}
 	},
 
 	unlimitTo: async function() {
-		await this.wallet.methods.unlimitTo().send({from: this.account, gas: 210000});
-		this.updateInfo();
+		let isPiChain = await this.checkNetwork();
+		if (isPiChain) {
+			await this.wallet.methods.unlimitTo().send({from: this.account, gas: 210000});
+			this.updateInfo();
+		}
 	},
 
 	unlimitDaily: async function() {
 		let proposerElement = document.getElementById("removeLimitDayToken");
 		let _tokenAddress = proposerElement.options[proposerElement.selectedIndex].value;
-		await this.wallet.methods.unlimitDaily(_tokenAddress).send({from: this.account, gas: 210000});
-		this.updateInfo();
+		let isPiChain = await this.checkNetwork();
+		if (isPiChain) {
+			await this.wallet.methods.unlimitDaily(_tokenAddress).send({from: this.account, gas: 210000});
+			this.updateInfo();
+		}
 	},
 
 	unlimitValue: async function() {
 		let proposerElement = document.getElementById("removeLimitValueToken");
 		let _tokenAddress = proposerElement.options[proposerElement.selectedIndex].value;
-		await this.wallet.methods.unlimitValue(_tokenAddress).send({from: this.account, gas: 210000});
-		this.updateInfo();
+		let isPiChain = await this.checkNetwork();
+		if (isPiChain) {
+			await this.wallet.methods.unlimitValue(_tokenAddress).send({from: this.account, gas: 210000});
+			this.updateInfo();
+		}
 	},
 
 	buildQuery: function() {
-		let _recovery = this.account;
+		let _recovery = this.account.toLowerCase();
 		this.query = '{ identities(where: { recovery: "' + _recovery + '" }) { id state owner recovery wallet { id name { id } isToLimited allowedDestinations { id name { id } } valueLimits { id isActive token { id tokenSymbol } limit } dayLimits { id isActive token { id tokenSymbol } limit } } } }';
+	},
+
+	buildQueryOwner: function() {
+		let _owner = this.account.toLowerCase();
+		this.query = '{ identities(where: { owner: "' + _owner + '" }) { id state owner recovery wallet { id name { id } isToLimited allowedDestinations { id name { id } } valueLimits { id isActive token { id tokenSymbol } limit } dayLimits { id isActive token { id tokenSymbol } limit } } } }';
 	},
 
 	instantiateIdentity: function(_address) {
